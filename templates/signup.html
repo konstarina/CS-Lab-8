@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<body style="background-color: beige;">
+<div align="center">
+  <h2>Registration page </h2>
+  <form>
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="fname" value="" required><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="fname" value="" minlength="8" required><br>
+
+    <label for="password">Confirm Password:</label><br>
+    <input type="password" id="password_confirm" name="fname" value="" minlength="8" required><br>
+
+    <label for="email">Email:</label><br>
+    <input type="text" id="email" name="lname" value="" required><br><br>
+
+    <button type="button" onclick="sign_up()">Sign Up</button>
+  </form>
+
+  <div id="signup_response"></div>
+
+  <h2>Sign in</h2>
+  <form>
+    <label for="username">Username:</label><br>
+    <input type="text" id="login_username" name="fname" required><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="login_password" name="fname" value="" minlength="8" required><br><br>
+
+    <button type="button" onclick="sign_in()">Sign In</button>
+  </form>
+
+  <div id="login_response"></div>
+
+  <script>
+
+    function validate_password(password) {
+      return password && password.length >= 8 && /\d/.test(password);
+    }
+    // function validate_email(email) {
+    //   const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    //   return re.test(String(email).toLowerCase());
+    // }
+
+    function validate_email(email) {
+      const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    }
+
+    function sign_up() {
+      username = document.getElementById("username").value
+      password = document.getElementById("password").value
+      confirm_password = document.getElementById("password_confirm").value
+      email = document.getElementById("email").value
+      user = { username, password, email }
+
+      if (password != confirm_password) {
+        document.getElementById("signup_response").innerHTML = "Password did not match"
+        return
+      }
+
+      if (username.length < 5) {
+        document.getElementById("signup_response").innerHTML = "Invalid username"
+        return
+      }
+
+      if (!validate_password(password)) {
+        document.getElementById("signup_response").innerHTML = "Invalid password. Password should contain at least 8 characters and 1 digit"
+        return
+      }
+
+      if (!validate_email(email)) {
+        document.getElementById("signup_response").innerHTML = "Invalid email"
+        return
+      }
+
+
+      fetch("http://localhost:3000/user", {
+        method: "post",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      })
+        .then(response => response.json())
+        .then((data) => {
+          document.getElementById("signup_response").innerHTML = data.msg
+        });
+    }
+
+
+    function sign_in() {
+      username = document.getElementById("login_username").value
+      password = document.getElementById("login_password").value
+      user = { username, password }
+
+      fetch("http://localhost:3000/auth", {
+        method: "post",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      })
+        .then(response => response.json())
+        .then((data) => {
+          document.getElementById("login_response").innerHTML = data.msg
+        });
+    }
+  </script>
+</div>
+</body>
+
+</html>
